@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件传输 - File Transfer</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📁 文件管理</h1>
+            <div class="header-actions">
+                <button id="viewToggle" class="btn btn-icon" title="切换视图">
+                    <span class="grid-view">▦</span>
+                </button>
+                <button id="refreshBtn" class="btn btn-icon" title="刷新">↻</button>
+                <button id="p2pBtn" class="btn btn-icon" title="P2P传输">🔗</button>
+            </div>
+        </header>
+
+        <nav class="breadcrumb" id="breadcrumb">
+            <span class="breadcrumb-item" data-path="/">🏠 根目录</span>
+        </nav>
+
+        <div class="toolbar">
+            <button id="newFolderBtn" class="btn btn-primary">📁 新建文件夹</button>
+            <button id="uploadBtn" class="btn btn-success">⬆️ 上传文件</button>
+            <input type="file" id="fileInput" multiple hidden>
+        </div>
+
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-zone-content">
+                <span class="upload-icon">⬆️</span>
+                <p>拖放文件到这里或点击上传</p>
+            </div>
+        </div>
+
+        <div class="file-list" id="fileList">
+            <div class="loading">加载中...</div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">标题</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+
+    <div class="p2p-panel" id="p2pPanel" style="display:none;">
+        <div class="p2p-header">
+            <h3>P2P 设备连接</h3>
+            <button class="close-btn" id="closeP2P">&times;</button>
+        </div>
+        <div class="p2p-tabs">
+            <button class="p2p-tab active" data-tab="discover">发现设备</button>
+            <button class="p2p-tab" data-tab="pairing">配对码</button>
+            <button class="p2p-tab" data-tab="transfers">传输</button>
+        </div>
+        <div class="p2p-content" id="p2pContent">
+            <div id="p2pDiscover">
+                <button id="discoverBtn" class="btn btn-primary">🔍 扫描设备</button>
+                <div id="deviceList" class="device-list"></div>
+            </div>
+            <div id="p2pPairing" style="display:none;">
+                <div class="pairing-section">
+                    <h4>生成配对码</h4>
+                    <button id="generateCodeBtn" class="btn btn-primary">生成配对码</button>
+                    <div id="pairingCode" class="pairing-code"></div>
+                </div>
+                <div class="pairing-section">
+                    <h4>输入配对码</h4>
+                    <input type="text" id="pairingInput" class="input" placeholder="输入6位配对码" maxlength="6">
+                    <button id="joinCodeBtn" class="btn btn-success">加入</button>
+                </div>
+            </div>
+            <div id="p2pTransfers" style="display:none;">
+                <div id="transferList" class="transfer-list"></div>
+            </div>
+        </div>
+        <div class="p2p-info">
+            <h4>本机地址</h4>
+            <div id="localAddresses" class="address-list"></div>
+        </div>
+    </div>
+
+    <script src="js/api.js?v=3"></script>
+    <script src="js/crypto.js?v=2"></script>
+    <script src="js/fileManager.js?v=2"></script>
+    <script src="js/p2p.js?v=1"></script>
+    <script src="js/app.js?v=3"></script>
+</body>
+</html>

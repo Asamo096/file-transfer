@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        go-version: ['1.21']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Get dependencies
+        run: |
+          go mod download
+          go mod verify
+
+      - name: Build
+        run: |
+          $ext = ''
+          if ($RUNNER_OS -eq 'Windows') { $ext = '.exe' }
+          go build -mod=mod -ldflags="-s -w" -o file-transfer-${{ matrix.os }}-amd64$ext file-transfer/backend
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            file-transfer-${{ matrix.os }}-amd64${{ matrix.os == 'windows' && '.exe' || '' }}
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-arm:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.21']
+        platform: [linux-arm64, darwin-arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Get dependencies
+        run: |
+          go mod download
+          go mod verify
+
+      - name: Build ARM64
+        run: |
+          GOOS=$(echo ${{ matrix.platform }} | cut -d- -f1)
+          GOARCH=arm64
+          ext=''
+          if [ "$GOOS" = "windows" ]; then ext='.exe'; fi
+          go build -mod=mod -ldflags="-s -w" -o file-transfer-${{ matrix.platform }}-arm64$ext file-transfer/backend
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            file-transfer-${{ matrix.platform }}-arm64*
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
