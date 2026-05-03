@@ -46,10 +46,12 @@ jobs:
           ${{ matrix.env }} go build -mod=mod -ldflags="-s -w" -o ${{ matrix.artifact }} file-transfer/backend
 
       - name: Upload release asset
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.artifact }}
           draft: false
           prerelease: true
+          tag_name: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
