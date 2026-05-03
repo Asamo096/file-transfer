@@ -17,23 +17,20 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            extension: ''
             artifact: file-transfer-linux-amd64
+            env: ''
           - os: windows-latest
-            extension: '.exe'
             artifact: file-transfer-windows-amd64.exe
+            env: ''
           - os: macos-latest
-            extension: ''
             artifact: file-transfer-darwin-amd64
+            env: ''
           - os: ubuntu-latest
-            extension: ''
             artifact: file-transfer-linux-arm64
-            goarch: arm64
+            env: 'GOARCH=arm64'
           - os: ubuntu-latest
-            extension: ''
             artifact: file-transfer-darwin-arm64
-            goarch: arm64
-            goos: darwin
+            env: 'GOARCH=arm64 GOOS=darwin'
 
     steps:
       - name: Checkout code
@@ -43,28 +40,15 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-          cache: true
-
-      - name: Get dependencies
-        run: |
-          go mod download
-          go mod verify
 
       - name: Build
-        env:
-          GOOS: ${{ matrix.goos || 'linux' }}
-          GOARCH: ${{ matrix.goarch || 'amd64' }}
         run: |
-          ext = '${{ matrix.extension }}'
-          name = '${{ matrix.artifact }}'
-          if (GOOS == 'windows') { ext = '.exe' }
-          go build -ldflags="-s -w" -o ${name}${ext} ./backend
+          ${{ matrix.env }} go build -ldflags="-s -w" -o ${{ matrix.artifact }} ./backend
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            ${{ matrix.artifact }}${{ matrix.extension }}
+          files: ${{ matrix.artifact }}
           draft: false
           prerelease: true
         env:
