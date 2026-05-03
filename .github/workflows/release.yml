@@ -43,7 +43,7 @@ jobs:
 
       - name: Build
         run: |
-          ${{ matrix.env }} go build -mod=mod -ldflags="-s -w" -o ${{ matrix.artifact }} ./backend
+          ${{ matrix.env }} go build -mod=mod -ldflags="-s -w" -o ${{ matrix.artifact }} file-transfer/backend
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
